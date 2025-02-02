@@ -3,7 +3,7 @@ import json
 
 import openpyxl
 
-from .string_utils import extract_ngrams, vectorize_ngrams
+from .string_utils import extract_ngrams, vectorize_ngrams, cosine_similarity, is_year
 
 
 class LocalDatabase:
@@ -15,6 +15,9 @@ class LocalDatabase:
         # Check if empty
         if not self.cursor.execute("SELECT name FROM sqlite_master;").fetchall():
             self.build_database()
+        # Custom function used to compute similarity between strings
+        self.connection.create_function("similarity_score", 2, cosine_similarity,
+                                        deterministic=True)
 
 
     def build_database(self):
@@ -75,7 +78,9 @@ class LocalDatabase:
         self.connection.commit()
 
 
-    def search(self, parameters={}):
+    def search(self, raw_input):
+
+        parameters = parse_input(raw_input)
 
         query = """
         SELECT city_name, country_name, year, annual_population FROM population_records 
@@ -83,13 +88,36 @@ class LocalDatabase:
         JOIN countries ON cities.country_code = countries.country_code
         """
 
-        if parameters.get("year") is not None:
+        query += f"WHERE similarity_score(cities.city_trigrams, :trigram) > 0.5"
 
-            query += f"WHERE year = {parameters["year"]}"
+        if parameters.get("year") is not None:
+            query += " AND year=:year"
         
         query += "\nLIMIT 10"
 
-        self.cursor.execute(query)
+        self.cursor.execute(query, parameters)
         
         return self.cursor.fetchall()
+
+
+def parse_input(raw_input):
+    """Parse user input and return a set of parameters for database search."""
+    
+    parameters = {}
+
+    # Input as a list of words separated by spaces
+    words = raw_input.split()
+
+    # Check if year is provided
+    for word in words:
+        if is_year(word):
+            parameters["year"] = int(word)
+            words.remove(word)
+
+    # Use the rest for name
+    name = " ".join(words)
+    name_vector = json.dumps(vectorize_ngrams(extract_ngrams(name)))
+    parameters["trigram"] = name_vector
+
+    return parameters
 

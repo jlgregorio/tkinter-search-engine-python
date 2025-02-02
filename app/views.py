@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from PIL import Image, ImageTk
+
 from .widgets import SearchBar
 
 
@@ -16,6 +18,12 @@ class SearchPage(tk.Frame):
         self.settings = settings
 
         self.parent.geometry("1280x720")
+        
+        img = Image.open("./app/images/search_page_logo.png")
+        img = img.resize((270, 90))
+        self.img = ImageTk.PhotoImage(img)
+        self.panel = ttk.Label(self, image=self.img)
+        self.panel.pack(side=tk.TOP, padx=10, pady=10)
 
         self.label = ttk.Label(self, text="Enter your search here")
         self.label.pack(side=tk.TOP, padx=10, pady=10)
@@ -47,7 +55,7 @@ class SearchPage(tk.Frame):
         raw_input = self.search_bar.get()
 
         # Query (TODO: add parameters and string matching)
-        results = self.model.search()
+        results = self.model.search(raw_input)
 
         # Show results
         for i, result in enumerate(results):
