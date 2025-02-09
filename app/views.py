@@ -20,17 +20,17 @@ class SearchPage(tk.Frame):
         self.parent.geometry("1280x720")
         
         img = Image.open("./app/images/search_page_logo.png")
-        img = img.resize((270, 90))
         self.img = ImageTk.PhotoImage(img)
         self.panel = ttk.Label(self, image=self.img)
         self.panel.pack(side=tk.TOP, padx=10, pady=10)
 
-        self.label = ttk.Label(self, text="Enter your search here")
+        self.label = ttk.Label(self, text="Welcome, enter your search below!",
+                               font="Sans")
         self.label.pack(side=tk.TOP, padx=10, pady=10)
 
-        self.search_bar = SearchBar(self, font="Helvetica 20 bold")
+        self.search_bar = SearchBar(self, font="Sans 24 bold")
         self.search_bar.bind("<Return>", self.search)
-        self.search_bar.pack(fill=tk.X, padx=25, pady=10)
+        self.search_bar.pack(fill=tk.X, padx=50, pady=10)
 
         self.results_area = ttk.Treeview(self)
         self.results_area['columns']=("city", "country", "year", "population")
@@ -40,7 +40,7 @@ class SearchPage(tk.Frame):
         self.results_area.column("year", anchor=tk.CENTER)
         self.results_area.column("population", anchor=tk.CENTER)
         self.results_area.heading("#0", text='', anchor=tk.CENTER)
-        self.results_area.heading("city", text="City", anchor=tk.CENTER)
+        self.results_area.heading("city", text="Urban agglomeration", anchor=tk.CENTER)
         self.results_area.heading("country", text="Country", anchor=tk.CENTER)
         self.results_area.heading("year", text="Year", anchor=tk.CENTER)
         self.results_area.heading("population", text="Annual population", anchor=tk.CENTER)

@@ -6,6 +6,8 @@ between two strings for approximate string matching/comparison.
 
 import json
 from math import sqrt
+import string
+import unicodedata
 
 def extract_ngrams(string, n=3, padding=True):
     """Break a string into a sequence of n adjacent letters or ngrams. 
@@ -51,8 +53,28 @@ def cosine_similarity(v_1_json, v_2_json):
     return sum([v_1[ngram] * v_2[ngram] for ngram in common_ngrams])
 
 
-def is_year(string):
+def preprocess(text):
+    """Prepare string data before vectorization/processing."""
+
+    # Replace uppercase by lowercase letters
+    text = text.lower()
+
+    # Remove punctuation
+    text = text.translate(str.maketrans('', '', string.punctuation))
+
+    # Replace "special characters" with ascii equivalent
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")
+
+    return text
+
+
+def is_year(word):
     """Check if a word represents a year."""
 
-    return string.isdigit()
+    if word.isdigit():
+        if int(word) > 1900 and int(word) < 2100:
+            return True
+
+    return False
 

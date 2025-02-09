@@ -3,7 +3,7 @@ import json
 
 import openpyxl
 
-from .string_utils import extract_ngrams, vectorize_ngrams, cosine_similarity, is_year
+from .string_utils import extract_ngrams, vectorize_ngrams, cosine_similarity, is_year, preprocess
 
 
 class LocalDatabase:
@@ -21,6 +21,7 @@ class LocalDatabase:
 
 
     def build_database(self):
+        """Populate database with data from the Excel file in the data folder"""
 
         # Create tables
         self.cursor.execute("CREATE TABLE countries(country_code INTEGER, country_name TEXT, country_trigrams TEXT)")
@@ -59,13 +60,13 @@ class LocalDatabase:
             for year, value in zip(column_names[8:], values):
                 records.append((year, value, city[0]))
 
-        # Add trigrams
+        # Compute trigrams (with some preprocessing before)
         for i, country in enumerate(countries):
-            trigram = vectorize_ngrams(extract_ngrams(country[1]))
+            trigram = vectorize_ngrams(extract_ngrams(preprocess(country[1])))
             countries[i] += tuple([json.dumps(trigram),])
 
         for i, city in enumerate(cities):
-            trigram = vectorize_ngrams(extract_ngrams(city[1]))
+            trigram = vectorize_ngrams(extract_ngrams(preprocess(city[1])))
             cities[i] += tuple([json.dumps(trigram),])
 
 
@@ -79,24 +80,40 @@ class LocalDatabase:
 
 
     def search(self, raw_input):
+        """Check for records that match user's input (in GUI seach bar)"""
 
+        # Convert user's input (in seach bar) to searchable parameters
         parameters = parse_input(raw_input)
 
         query = """
         SELECT city_name, country_name, year, annual_population FROM population_records 
         JOIN cities ON population_records.city_code = cities.city_code
         JOIN countries ON cities.country_code = countries.country_code
+        WHERE similarity_score(cities.city_trigrams, :trigram) > 0.333
         """
-
-        query += f"WHERE similarity_score(cities.city_trigrams, :trigram) > 0.5"
 
         if parameters.get("year") is not None:
             query += " AND year=:year"
-        
-        query += "\nLIMIT 10"
+
+        query += "\n ORDER BY similarity_score(cities.city_trigrams, :trigram) DESC"
 
         self.cursor.execute(query, parameters)
         
+        return self.cursor.fetchall()
+
+    def search_autofill(self, raw_input):
+        """Provide suggestions (city names) based on the user's input"""
+
+        parameters = {"name":raw_input}
+
+        query = """
+        SELECT city_name FROM cities 
+        WHERE city_name LIKE ':name%'
+        LIMIT 5
+        """
+
+        self.cursor.execute(query, parameters)
+
         return self.cursor.fetchall()
 
 
@@ -105,8 +122,9 @@ def parse_input(raw_input):
     
     parameters = {}
 
-    # Input as a list of words separated by spaces
-    words = raw_input.split()
+    # Lowercase and separate words
+    clean_input = preprocess(raw_input)
+    words = clean_input.split()
 
     # Check if year is provided
     for word in words:
@@ -114,7 +132,7 @@ def parse_input(raw_input):
             parameters["year"] = int(word)
             words.remove(word)
 
-    # Use the rest for name
+    # Use the rest for string similarity
     name = " ".join(words)
     name_vector = json.dumps(vectorize_ngrams(extract_ngrams(name)))
     parameters["trigram"] = name_vector

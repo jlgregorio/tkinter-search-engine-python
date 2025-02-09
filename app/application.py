@@ -1,3 +1,4 @@
+import platform
 import tkinter as tk
 from tkinter import ttk
 
@@ -14,8 +15,13 @@ class Application(tk.Tk):
         self.model = LocalDatabase()
         self.settings = None
 
-        self.title("Custom Application")
+        # Title and icon of the windows
+        self.title("Popcitycle Seach Engine")
+        if platform.system()=="Linux":
+            self.iconbitmap("@./app/images/logo.xbm")
+        elif platform.system()=="Windows":
+            self.iconbitmap("./app/images/logo.ico")
 
+        # Display first frame
         self.search_page = SearchPage(self, self.model, self.settings)
-
         self.search_page.pack(expand=True, fill=tk.BOTH)
