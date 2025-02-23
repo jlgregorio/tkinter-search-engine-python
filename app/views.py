@@ -6,31 +6,40 @@ from PIL import Image, ImageTk
 from .widgets import SearchBar
 
 
-class SearchPage(tk.Frame):
+class SearchPage(ttk.Frame):
     """Interface looking like a web browser search engine page"""
 
-    def __init__(self, parent, model, settings, *args, **kwargs):
+    def __init__(self, master, model, settings, *args, **kwargs):
         
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(master, *args, **kwargs)
 
-        self.parent = parent
+        self.master = master
         self.model = model
         self.settings = settings
 
-        self.parent.geometry("1280x720")
-        
+        # Initial size of window
+        self.master.geometry("1280x720")
+
+        # Style configuration
+        style = ttk.Style()
+        style.configure("TFrame", background="#d3f2f5")
+        style.configure("TLabel", background="#d3f2f5", font="Sans")
+        style.configure("Treeview.Heading", font="Sans", background="#87bfc8")
+        style.configure("Treeview", font="Sans", background="white")
+        style.map("Treeview", background=[('selected', '#fab5ac')])
+
+        # Logo
         img = Image.open("./app/images/search_page_logo.png")
         self.img = ImageTk.PhotoImage(img)
         self.panel = ttk.Label(self, image=self.img)
         self.panel.pack(side=tk.TOP, padx=10, pady=10)
 
-        self.label = ttk.Label(self, text="Welcome, enter your search below!",
-                               font="Sans")
+        self.label = ttk.Label(self, text="Welcome, enter your search below!")
         self.label.pack(side=tk.TOP, padx=10, pady=10)
 
-        self.search_bar = SearchBar(self, font="Sans 24 bold")
+        self.search_bar = SearchBar(self, self.model.search_autofill)
         self.search_bar.bind("<Return>", self.search)
-        self.search_bar.pack(fill=tk.X, padx=50, pady=10)
+        self.search_bar.pack(pady=10)
 
         self.results_area = ttk.Treeview(self)
         self.results_area['columns']=("city", "country", "year", "population")

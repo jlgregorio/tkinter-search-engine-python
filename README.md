@@ -2,7 +2,9 @@
 
 This is inspired by a side project I carried out a few years ago in one of my previous professional endeavours. The main objective was to automate the repetitive tasks of searching for information in public/online and internal/local "databases" taking the form of Excel files. The data would, of course, evolve over time.
 
-This reproduces some features of the developped solution, and in particular the approximate string matching algorithm which is both simple and effective. Annual population data for major urban areas as provided by the United Nations are taken as an example.
+This reproduces some features of the developped solution, and in particular the approximate string matching algorithm which is both simple and quite effective.
+
+Annual population data for major urban areas as provided by the United Nations are taken as an example.
 
 <div align="center">
   <p><img src="docs/example_screenshot.png"></p>

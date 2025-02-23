@@ -108,7 +108,7 @@ class LocalDatabase:
 
         query = """
         SELECT city_name FROM cities 
-        WHERE city_name LIKE ':name%'
+        WHERE city_name LIKE :name || '%'
         LIMIT 5
         """
 
