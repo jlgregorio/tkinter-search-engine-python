@@ -2,7 +2,7 @@
 
 One feature of this "Search Engine" is the ability to provide a list of results even if the user's input does not perfectly match an entry of the database. This is made possible by using an approximate string matching or fuzzy search algorithm, which simply measures "how close two strings are".
 
-There are in practice many string matching algorithms (including the well-known *Leveinstein distance*), but the one implemented here has been chosen for its conceptual simplicity, speed of execution and relatively good performance. It is described below:
+There are in practice many string matching algorithms (including the well-known *Leveinstein distance*). The one implemented here is fairly simple and fast, and offers relatively good performance. It works as described below:
 
 1. Strings are broken into small chunks of $n$ consecutive letters, also called *n-grams*. The number $n$ is arbitrarily set to 3 here, giving a set of *trigrams* for each string.
 

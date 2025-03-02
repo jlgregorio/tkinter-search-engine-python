@@ -52,7 +52,7 @@ class SearchPage(ttk.Frame):
         self.results_area.heading("city", text="Urban agglomeration", anchor=tk.CENTER)
         self.results_area.heading("country", text="Country", anchor=tk.CENTER)
         self.results_area.heading("year", text="Year", anchor=tk.CENTER)
-        self.results_area.heading("population", text="Annual population", anchor=tk.CENTER)
+        self.results_area.heading("population", text="Annual population (thousands)", anchor=tk.CENTER)
         self.results_area.pack(side=tk.BOTTOM, expand=True, fill=tk.BOTH, padx=10, pady=10)
 
     def search(self, event):
