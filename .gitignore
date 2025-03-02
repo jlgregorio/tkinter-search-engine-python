@@ -1,6 +1,7 @@
 # files
 *.pyc
 */__pycache__
+annual_population.db
 
 # folders
 .venv

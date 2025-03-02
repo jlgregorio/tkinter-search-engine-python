@@ -7,7 +7,7 @@ This reproduces some features of the developped solution, and in particular the 
 Annual population data for major urban areas as provided by the United Nations are taken as an example.
 
 <div align="center">
-  <p><img src="docs/example_screenshot.png"></p>
+  <p><img src="docs/animated_example.gif"></p>
   <p>Screenshot of the app'</p>
 </div>
 

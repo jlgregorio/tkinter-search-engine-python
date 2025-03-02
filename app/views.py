@@ -37,7 +37,7 @@ class SearchPage(ttk.Frame):
         self.label = ttk.Label(self, text="Welcome, enter your search below!")
         self.label.pack(side=tk.TOP, padx=10, pady=10)
 
-        self.search_bar = SearchBar(self, self.model.search_autofill)
+        self.search_bar = SearchBar(self, self.model.search_autofill, font="Sans 24 bold", width=50)
         self.search_bar.bind("<Return>", self.search)
         self.search_bar.pack(pady=10)
 

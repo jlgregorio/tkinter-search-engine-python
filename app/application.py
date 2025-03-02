@@ -16,7 +16,7 @@ class Application(tk.Tk):
         self.settings = None
 
         # Title and icon of the windows
-        self.title("Popcitycle Seach Engine")
+        self.title("Popcitycle Search Engine")
         if platform.system()=="Linux":
             self.iconbitmap("@./app/images/logo.xbm")
         elif platform.system()=="Windows":
