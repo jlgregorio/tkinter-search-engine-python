@@ -1,3 +1,5 @@
+"""Models for storage and manipulation of data (see MVC pattern)."""
+
 import sqlite3
 import json
 
@@ -12,15 +14,18 @@ class LocalDatabase:
         
         self.connection = sqlite3.connect("annual_population.db")
         self.cursor = self.connection.cursor()
-        # Check if empty
-        if not self.cursor.execute("SELECT name FROM sqlite_master;").fetchall():
-            self.build_database()
         # Custom function used to compute similarity between strings
         self.connection.create_function("similarity_score", 2, cosine_similarity,
                                         deterministic=True)
 
 
-    def build_database(self):
+    @property
+    def tables(self):
+        """List of tables of our database"""
+
+        return self.cursor.execute("SELECT name FROM sqlite_master;").fetchall()
+    
+    def build_database(self, xl_file_path):
         """Populate database with data from the Excel file in the data folder"""
 
         # Create tables
@@ -29,7 +34,7 @@ class LocalDatabase:
         self.cursor.execute("CREATE TABLE population_records(year INTEGER, annual_population REAL, city_code INTEGER)")
 
         # Open file
-        wb = openpyxl.load_workbook(filename="./data/WUP2018-F22-Cities_Over_300K_Annual.xlsx", read_only=True)
+        wb = openpyxl.load_workbook(filename=xl_file_path, read_only=True)
         raw_data = [row for row in wb["Data"].values]
 
         # Ignore first lines
@@ -101,15 +106,15 @@ class LocalDatabase:
         
         return self.cursor.fetchall()
 
-    def search_autofill(self, raw_input):
+    def search_autofill(self, raw_input, n):
         """Provide suggestions (city names) based on the user's input"""
 
-        parameters = {"name":raw_input}
+        parameters = {"name":raw_input, "n_suggestions":n}
 
         query = """
         SELECT city_name FROM cities 
         WHERE city_name LIKE :name || '%'
-        LIMIT 5
+        LIMIT :n_suggestions
         """
 
         self.cursor.execute(query, parameters)
@@ -133,6 +138,7 @@ def parse_input(raw_input):
             words.remove(word)
 
     # Use the rest for string similarity
+    # SQLite only supports simple types so serializes dict to JSON formatted str
     name = " ".join(words)
     name_vector = json.dumps(vectorize_ngrams(extract_ngrams(name)))
     parameters["trigram"] = name_vector

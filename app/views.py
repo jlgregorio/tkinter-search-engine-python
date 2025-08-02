@@ -1,3 +1,5 @@
+"""Views or interfaces presenting data and controls to the user (see MVC pattern)."""
+
 import tkinter as tk
 from tkinter import ttk
 
@@ -15,11 +17,9 @@ class SearchPage(ttk.Frame):
 
         self.master = master
         self.model = model
-        self.settings = settings
 
         # Initial size of window
         self.master.geometry("1280x720")
-
         # Style configuration
         style = ttk.Style()
         style.configure("TFrame", background="#d3f2f5")
@@ -27,20 +27,19 @@ class SearchPage(ttk.Frame):
         style.configure("Treeview.Heading", font="Sans", background="#87bfc8")
         style.configure("Treeview", font="Sans", background="white")
         style.map("Treeview", background=[('selected', '#fab5ac')])
-
         # Logo
         img = Image.open("./app/images/search_page_logo.png")
         self.img = ImageTk.PhotoImage(img)
         self.panel = ttk.Label(self, image=self.img)
         self.panel.pack(side=tk.TOP, padx=10, pady=10)
-
+        # Text
         self.label = ttk.Label(self, text="Welcome, enter your search below!")
         self.label.pack(side=tk.TOP, padx=10, pady=10)
-
+        # Search bar
         self.search_bar = SearchBar(self, self.model.search_autofill, font="Sans 24 bold", width=50)
         self.search_bar.bind("<Return>", self.search)
         self.search_bar.pack(pady=10)
-
+        # Results area
         self.results_area = ttk.Treeview(self)
         self.results_area['columns']=("city", "country", "year", "population")
         self.results_area.column("#0", width=0, stretch=tk.NO)
@@ -57,13 +56,16 @@ class SearchPage(ttk.Frame):
 
     def search(self, event):
 
+        # Hide suggestion list
+        if self.search_bar.suggestion_list is not None:
+            self.search_bar.suggestion_list.destroy()
+        self.update_idletasks()
+        
         # Erase previous results
         self.results_area.delete(*self.results_area.get_children())
 
-        # Get user's search (TODO: parse)
+        # Get user's input and perform the search (TODO: use multiple threads with Threading)
         raw_input = self.search_bar.get()
-
-        # Query (TODO: add parameters and string matching)
         results = self.model.search(raw_input)
 
         # Show results
